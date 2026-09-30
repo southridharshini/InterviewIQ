@@ -1,0 +1,1 @@
+web: gunicorn interviewiq_project.wsgi

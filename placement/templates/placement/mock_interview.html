@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Mock Interview - {{ company_name }}</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #1e3a8a;
+            --accent: #3b82f6;
+            --accent-light: #93c5fd;
+            --bg-page: #0a0e17;
+            --bg-card: #111827;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-page); color: var(--text-main); min-height: 100vh; padding-top: 100px; }
+
+        nav {
+            background-color: rgba(10, 14, 23, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 18px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-color);
+        }
+        nav h2 a { color: white; text-decoration: none; font-family: 'Poppins'; font-weight: 700; }
+        nav h2 span { color: var(--accent); }
+        .nav-links a { color: var(--text-muted); text-decoration: none; margin-left: 20px; font-weight: 500; }
+
+        .container { max-width: 850px; }
+        
+        .mock-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+        }
+
+        .question-card {
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-main);
+        }
+
+        .form-control {
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            color: #fff;
+        }
+
+        .form-control:focus {
+            background-color: rgba(0, 0, 0, 0.5);
+            color: #fff;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+        }
+
+        .form-control::placeholder {
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <h2><a href="{% url 'home' %}">Interview<span>IQ</span></a></h2>
+        <div class="nav-links">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'companies' %}">Companies</a>
+            <a href="{% url 'experiences' %}">Explore</a>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        <div class="card shadow-lg rounded-4 p-4 mock-card">
+            <h2 class="fw-bold text-primary mb-2">🎙️ Interactive AI Mock Interview</h2>
+            <p class="text-muted">Target Company: <strong class="text-light">{{ company_name }}</strong></p>
+            <hr class="border-secondary">
+
+            <form method="POST" id="mockInterviewForm">
+                {% csrf_token %}
+                
+                {% for q in questions %}
+                <div class="card mb-4 rounded-3 p-3 question-card">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="fw-bold mb-0 text-light">Question {{ forloop.counter }}</h5>
+                        <!-- Voice Tool: Read Question Aloud -->
+                        <button type="button" class="btn btn-outline-info btn-sm rounded-pill" onclick="speakQuestion('{{ q|escapejs }}')">
+                            🔊 Read Question Aloud
+                        </button>
+                    </div>
+                    <p class="fs-5 text-light opacity-90" id="q-text-{{ forloop.counter0 }}">{{ q }}</p>
+
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold text-muted">Your Response (Speak or Type):</label>
+                        <textarea class="form-control" name="answer_{{ forloop.counter0 }}" id="answer_{{ forloop.counter0 }}" rows="3" placeholder="Type your answer here or click Voice Recording below..."></textarea>
+                    </div>
+
+                    <!-- Voice Tool: Speech Recognition Input -->
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-danger rounded-pill" onclick="startSpeechToText({{ forloop.counter0 }})">
+                            🎤 Start Voice Recording
+                        </button>
+                        <button type="button" class="btn btn-sm btn-secondary rounded-pill" onclick="stopSpeechToText()">
+                            ⏹ Stop Recording
+                        </button>
+                        <span id="voice-status-{{ forloop.counter0 }}" class="align-self-center text-muted small fw-bold"></span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-4 text-muted">
+                    No mock questions generated for this company yet.
+                </div>
+                {% endfor %}
+
+                {% if questions %}
+                <div class="d-grid gap-2 mt-4">
+                    <button type="submit" class="btn btn-success btn-lg rounded-pill fw-bold">
+                        🚀 Submit & Complete Interview
+                    </button>
+                </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 1. Text-to-Speech Engine (Read Questions Aloud)
+        function speakQuestion(text) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel(); // Stop active speech
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.rate = 0.95; // Clear speaking rate
+                utterance.pitch = 1.0;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                alert("Your browser does not support Text-to-Speech audio functionality.");
+            }
+        }
+
+        // 2. Speech-to-Text Engine (Voice Answer Input)
+        let recognition;
+        function startSpeechToText(index) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Your browser does not support Speech Recognition. Please type your answer or try using Google Chrome.");
+                return;
+            }
+
+            if (recognition) {
+                recognition.stop();
+            }
+
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+
+            const textarea = document.getElementById(`answer_${index}`);
+            const statusSpan = document.getElementById(`voice-status-${index}`);
+
+            statusSpan.innerText = "🔴 Listening... Speak now.";
+            statusSpan.className = "align-self-center text-danger fw-bold small";
+
+            recognition.onresult = (event) => {
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    transcript += event.results[i][0].transcript;
+                }
+                textarea.value = transcript;
+            };
+
+            recognition.onerror = (event) => {
+                statusSpan.innerText = "⚠️ Voice error occurred: " + event.error;
+            };
+
+            recognition.onend = () => {
+                statusSpan.innerText = "✅ Recording stopped.";
+                statusSpan.className = "align-self-center text-success fw-bold small";
+            };
+
+            recognition.start();
+        }
+
+        function stopSpeechToText() {
+            if (recognition) {
+                recognition.stop();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+{% extends 'placement/base.html' %}
+
+{% block content %}
+<div class="container my-5" style="max-width: 650px;">
+    <div class="card shadow-lg border-0 rounded-4 p-4 text-center">
+        <h3 class="text-muted mb-1">Company Criteria Check</h3>
+        <h2 class="fw-bold text-dark mb-4">{{ company.name }}</h2>
+
+        {% if is_eligible %}
+            <!-- ELIGIBLE BANNER -->
+            <div class="alert alert-success border-0 rounded-4 p-4 mb-4">
+                <div class="display-1 mb-2">🎉</div>
+                <h3 class="fw-bold text-success mb-2">You are Eligible!</h3>
+                <p class="mb-0 text-dark">Your academic profile meets all criteria set by <strong>{{ company.name }}</strong> for placement drives.</p>
+            </div>
+        {% else %}
+            <!-- NOT ELIGIBLE BANNER -->
+            <div class="alert alert-danger border-0 rounded-4 p-4 mb-4">
+                <div class="display-1 mb-2">⚠️</div>
+                <h3 class="fw-bold text-danger mb-2">Not Eligible</h3>
+                <p class="mb-0 text-dark">Unfortunately, your current academic profile does not satisfy all requirement parameters for <strong>{{ company.name }}</strong>.</p>
+            </div>
+
+            <!-- REASONS LIST -->
+            <div class="card bg-light border-0 rounded-3 p-3 text-start mb-4">
+                <h5 class="fw-bold text-danger mb-3">Disqualification Reasons:</h5>
+                <ul class="mb-0 ps-3">
+                    {% for reason in reasons %}
+                        <li class="mb-2 text-dark">{{ reason }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <!-- COMPANY REQUIREMENTS CRITERIA SUMMARY -->
+        <div class="card bg-light border-0 rounded-3 p-3 text-start mb-4">
+            <h6 class="fw-bold text-secondary mb-3">Company Minimum Criteria:</h6>
+            <div class="row text-center g-2">
+                <div class="col-4">
+                    <div class="p-2 bg-white rounded border">
+                        <small class="text-muted d-block">Min CGPA</small>
+                        <strong class="fs-6 text-primary">{{ company.min_cgpa }}</strong>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="p-2 bg-white rounded border">
+                        <small class="text-muted d-block">Max Active</small>
+                        <strong class="fs-6 text-primary">{{ company.max_active_arrears }}</strong>
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="p-2 bg-white rounded border">
+                        <small class="text-muted d-block">Max History</small>
+                        <strong class="fs-6 text-primary">{{ company.max_history_arrears }}</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'check_eligibility' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                Check Another Company
+            </a>
+            <a href="{% url 'dashboard' %}" class="btn btn-primary rounded-pill px-4">
+                Return to Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

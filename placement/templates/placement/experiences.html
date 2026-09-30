@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Role-Specific Preparation Tips & Experiences - InterviewIQ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        :root {
+            --accent: #3b82f6;
+            --accent-light: #93c5fd;
+            --bg-page: #0a0e17;
+            --bg-card: rgba(255, 255, 255, 0.05);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-page); color: var(--text-main); min-height: 100vh; padding-top: 100px; }
+
+        nav {
+            background-color: rgba(10, 14, 23, 0.85); backdrop-filter: blur(12px);
+            padding: 18px 8%; display: flex; justify-content: space-between; align-items: center;
+            position: fixed; top: 0; width: 100%; z-index: 1000; border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        nav h2 a { color: white; text-decoration: none; font-family: 'Poppins'; }
+        nav h2 span { color: var(--accent); }
+        .nav-links a { color: var(--text-muted); text-decoration: none; margin-left: 20px; }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+
+        .search-box {
+            display: flex; gap: 10px; margin-bottom: 30px; background: rgba(0,0,0,0.3); padding: 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);
+        }
+        .search-box input {
+            flex: 1; background: transparent; border: none; color: #fff; padding: 10px 15px; outline: none; font-size: 15px;
+        }
+
+        .exp-card {
+            background: var(--bg-card); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 25px; margin-bottom: 25px;
+        }
+
+        .exp-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .company-title { font-size: 22px; font-weight: 700; color: #fff; font-family: 'Poppins'; }
+        .role-tag { color: var(--accent-light); font-weight: 600; font-size: 15px; display: inline-block; margin-top: 4px; }
+
+        .badge { padding: 4px 10px; border-radius: 10px; font-size: 12px; font-weight: 600; }
+        .badge-warning { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-success { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid rgba(16, 185, 129, 0.3); }
+
+        .section-block {
+            margin-top: 15px; background: rgba(0, 0, 0, 0.25); padding: 16px; border-radius: 10px; border-left: 3px solid var(--accent);
+        }
+
+        .section-block.tips-block { border-left-color: #10b981; background: rgba(16, 185, 129, 0.05); }
+
+        .section-block h4 { font-size: 13px; text-transform: uppercase; color: var(--accent-light); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+        .tips-block h4 { color: #34d399; }
+        .exp-content { line-height: 1.6; color: #d1d5db; font-size: 14px; white-space: pre-line; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <h2><a href="{% url 'home' %}">Interview<span>IQ</span></a></h2>
+        <div class="nav-links">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'companies' %}">Companies</a>
+            <a href="{% url 'experiences' %}">Explore Experiences</a>
+            <a href="{% url 'share_experience' %}">Share Experience</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1 style="font-family: 'Poppins'; margin-bottom: 10px;">Role & Company Preparation Tips</h1>
+        <p style="color: var(--text-muted); margin-bottom: 25px;">Search by company name or specific role to read preparation advice.</p>
+
+        <div class="search-box">
+            <input type="text" id="searchInput" onkeyup="filterCards()" placeholder="Search by company (e.g. Google) or role (e.g. Software Engineer)...">
+        </div>
+
+        <div id="cardList">
+            {% for exp in experiences %}
+                <div class="exp-card" data-search="{{ exp.company_name }} {{ exp.role }}">
+                    <div class="exp-header">
+                        <div>
+                            <div class="company-title"><i class="fas fa-building"></i> {{ exp.company_name }}</div>
+                            <div class="role-tag"><i class="fas fa-user-tag"></i> Role: {{ exp.role }}</div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <span class="badge badge-warning">{{ exp.difficulty }}</span>
+                            <span class="badge badge-success">{{ exp.outcome }}</span>
+                        </div>
+                    </div>
+
+                    {% if exp.experience %}
+                        <div class="section-block">
+                            <h4><i class="fas fa-align-left"></i> Interview Process</h4>
+                            <div class="exp-content">{{ exp.experience }}</div>
+                        </div>
+                    {% endif %}
+
+                    {% if exp.questions_asked %}
+                        <div class="section-block">
+                            <h4><i class="fas fa-question-circle"></i> Questions Asked</h4>
+                            <div class="exp-content">{{ exp.questions_asked }}</div>
+                        </div>
+                    {% endif %}
+
+                    <!-- Preparation Tips Block -->
+                    <div class="section-block tips-block">
+                        <h4><i class="fas fa-lightbulb"></i> Preparation Tips for {{ exp.role }}</h4>
+                        <div class="exp-content">
+                            {% if exp.tips %}
+                                {{ exp.tips }}
+                            {% else %}
+                                <em>No specific tips provided for this submission. Share yours using the form!</em>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p style="color: var(--text-muted);">No experiences available yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        function filterCards() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let cards = document.querySelectorAll('.exp-card');
+            
+            cards.forEach(card => {
+                let searchData = card.getAttribute('data-search').toLowerCase();
+                if (searchData.includes(input)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>

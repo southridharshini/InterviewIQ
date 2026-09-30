@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InterviewIQ - LinkedIn Placement Graphic</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-page: #07090e;
+            --accent: #38bdf8;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: var(--bg-page);
+            color: #f3f4f6;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .container {
+            text-align: center;
+            max-width: 880px;
+            width: 100%;
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        h1 span { color: var(--accent); }
+
+        p.subtitle {
+            color: #94a3b8;
+            font-size: 15px;
+            margin-bottom: 25px;
+        }
+
+        canvas {
+            width: 100%;
+            max-width: 820px;
+            height: auto;
+            border-radius: 18px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            margin-bottom: 25px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border-radius: 10px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            font-size: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-linkedin {
+            background: linear-gradient(135deg, #0a66c2, #0077b5);
+            color: white;
+            box-shadow: 0 4px 15px rgba(10, 102, 194, 0.35);
+        }
+
+        .btn-linkedin:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(10, 102, 194, 0.5);
+        }
+
+        .btn-secondary {
+            background-color: #1e293b;
+            color: #cbd5e1;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover { background-color: #334155; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Share Your Experience on <span>LinkedIn</span></h1>
+        <p class="subtitle">Download your verified placement badge card to post on your feed.</p>
+
+        <!-- High-Resolution Canvas (1200x630 LinkedIn Standard) -->
+        <canvas id="linkedinCanvas" width="1200" height="630"></canvas>
+
+        <div class="action-buttons">
+            <button class="btn btn-linkedin" onclick="downloadGraphic()">
+                <i class="fab fa-linkedin"></i> Download Graphic (.PNG)
+            </button>
+            <a href="{% url 'experiences' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Experiences
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('linkedinCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Helper function for rounded rectangles
+        function drawRoundedRect(x, y, w, h, radius, fillStyle, strokeStyle) {
+            ctx.beginPath();
+            ctx.roundRect(x, y, w, h, radius);
+            if (fillStyle) {
+                ctx.fillStyle = fillStyle;
+                ctx.fill();
+            }
+            if (strokeStyle) {
+                ctx.strokeStyle = strokeStyle;
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            }
+        }
+
+        function generateBadge() {
+            // 1. Dark Modern Background
+            const bgGrad = ctx.createLinearGradient(0, 0, 1200, 630);
+            bgGrad.addColorStop(0, '#090d16');
+            bgGrad.addColorStop(0.5, '#111827');
+            bgGrad.addColorStop(1, '#0f172a');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, 1200, 630);
+
+            // 2. Ambient Radial Glow Circles
+            const glow1 = ctx.createRadialGradient(1050, 100, 10, 1050, 100, 350);
+            glow1.addColorStop(0, 'rgba(56, 189, 248, 0.18)');
+            glow1.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = glow1;
+            ctx.fillRect(0, 0, 1200, 630);
+
+            const glow2 = ctx.createRadialGradient(150, 530, 10, 150, 530, 300);
+            glow2.addColorStop(0, 'rgba(99, 102, 241, 0.15)');
+            glow2.addColorStop(1, 'rgba(0, 0, 0, 0)');
+            ctx.fillStyle = glow2;
+            ctx.fillRect(0, 0, 1200, 630);
+
+            // 3. Card Outer Border
+            drawRoundedRect(20, 20, 1160, 590, 24, null, 'rgba(255, 255, 255, 0.12)');
+
+            // 4. Header: Logo & Branding
+            ctx.fillStyle = '#ffffff';
+            ctx.font = '800 38px "Plus Jakarta Sans", sans-serif';
+            ctx.fillText('Interview', 70, 95);
+            
+            ctx.fillStyle = '#38bdf8';
+            ctx.fillText('IQ', 232, 95);
+
+            // 5. Verified Badge Pill (Top Right)
+            drawRoundedRect(810, 55, 320, 48, 24, 'rgba(56, 189, 248, 0.12)', 'rgba(56, 189, 248, 0.35)');
+            ctx.fillStyle = '#38bdf8';
+            ctx.font = '700 16px "Plus Jakarta Sans", sans-serif';
+            ctx.fillText('✓  VERIFIED ALUMNI CONTRIBUTOR', 832, 85);
+
+            // 6. Candidate Name
+            ctx.fillStyle = '#f8fafc';
+            ctx.font = '800 58px "Plus Jakarta Sans", sans-serif';
+            ctx.fillText('{{ exp.user.first_name|default:exp.user.username|capfirst }}', 70, 230);
+
+            // 7. Sub-headline
+            ctx.fillStyle = '#94a3b8';
+            ctx.font = '500 24px "Plus Jakarta Sans", sans-serif';
+            ctx.fillText('Shared placement interview insights for', 70, 275);
+
+            // 8. Company Name (Gradient Text Effect)
+            const companyGrad = ctx.createLinearGradient(70, 0, 800, 0);
+            companyGrad.addColorStop(0, '#38bdf8');
+            companyGrad.addColorStop(1, '#818cf8');
+            ctx.fillStyle = companyGrad;
+            ctx.font = '800 60px "Plus Jakarta Sans", sans-serif';
+            ctx.fillText('{{ exp.company_name }}', 70, 360);
+
+            // 9. Glassmorphic Panel (Footer Stats)
+            drawRoundedRect(70, 435, 1060, 115, 18, 'rgba(255, 255, 255, 0.03)', 'rgba(255, 255, 255, 0.08)');
+
+            // Role
+            ctx.fillStyle = '#64748b';
+            ctx.font = '700 14px "Plus Jakarta Sans", sans-serif';
+            ctx.fillText('TARGET ROLE', 105, 475);
+            ctx.fillStyle = '#f1f5f9';
+            ctx.font = '700 24px "Plus Jakarta Sans", sans-serif';
+            ctx.fillText('{{ exp.role }}', 105, 515);
+
+            // Outcome Pill
+            drawRoundedRect(560, 472, 160, 40, 10, 'rgba(34, 197, 94, 0.15)', 'rgba(34, 197, 94, 0.3)');
+            ctx.fillStyle = '#4ade80';
+            ctx.font = '700 18px "Plus Jakarta Sans", sans-serif';
+            ctx.fillText('● {{ exp.outcome }}', 580, 498);
+
+            // Difficulty Pill
+            drawRoundedRect(750, 472, 210, 40, 10, 'rgba(245, 158, 11, 0.15)', 'rgba(245, 158, 11, 0.3)');
+            ctx.fillStyle = '#fbbf24';
+            ctx.font = '700 18px "Plus Jakarta Sans", sans-serif';
+            ctx.fillText('Difficulty: {{ exp.difficulty }}', 768, 498);
+        }
+
+        function downloadGraphic() {
+            const link = document.createElement('a');
+            link.download = 'InterviewIQ_{{ exp.company_name }}_Badge.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // Wait for fonts to load before drawing to Canvas
+        document.fonts.ready.then(() => {
+            generateBadge();
+        });
+    </script>
+</body>
+</html>

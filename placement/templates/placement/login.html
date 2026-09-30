@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Interview IQ</title>
+    <style>
+        body {
+            background-color: #0d1117;
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: #161b22;
+            padding: 40px;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            border: 1px solid #30363d;
+        }
+        h2 {
+            text-align: center;
+            color: #1f6feb;
+            margin-bottom: 24px;
+        }
+        /* Role Switch Tabs */
+        .tab-container {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #30363d;
+        }
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            background: none;
+            border: none;
+            color: #8b949e;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 14px;
+            transition: color 0.2s, border-bottom 0.2s;
+        }
+        .tab-btn.active {
+            color: #1f6feb;
+            border-bottom: 2px solid #1f6feb;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: #8b949e;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #30363d;
+            background: #0d1117;
+            color: #fff;
+            box-sizing: border-box;
+        }
+        input:focus {
+            outline: none;
+            border-color: #1f6feb;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: #1f6feb;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.2s;
+        }
+        .btn:hover {
+            background: #1158c7;
+        }
+        .btn-admin {
+            background: #238636;
+        }
+        .btn-admin:hover {
+            background: #2ea043;
+        }
+        .error-msg {
+            background: #da3633;
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            text-align: center;
+        }
+        .footer-text {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #8b949e;
+        }
+        .footer-text a {
+            color: #58a6ff;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <!-- Toggle Tabs for Role Switch -->
+    <div class="tab-container">
+        <a href="?type=student" class="tab-btn {% if user_type != 'admin' %}active{% endif %}">🎓 Student Login</a>
+        <a href="?type=admin" class="tab-btn {% if user_type == 'admin' %}active{% endif %}">🛡️ Admin Portal</a>
+    </div>
+
+    <h2>{% if user_type == 'admin' %}Admin Sign In{% else %}Welcome Back{% endif %}</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="error-msg">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <form method="POST" action="{% url 'login' %}">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" placeholder="Enter your username" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="Enter your password" required>
+        </div>
+
+        <!-- Dynamic role value based on active tab -->
+        <input type="hidden" name="user_type" value="{{ user_type|default:'student' }}">
+
+        <button type="submit" class="btn {% if user_type == 'admin' %}btn-admin{% endif %}">
+            {% if user_type == 'admin' %}Login to Admin Panel{% else %}Login{% endif %}
+        </button>
+    </form>
+
+    {% if user_type != 'admin' %}
+    <div class="footer-text">
+        New user? <a href="{% url 'register' %}">Create an account</a>
+    </div>
+    {% endif %}
+</div>
+
+</body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Share Interview Experience - InterviewIQ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --accent: #3b82f6;
+            --accent-light: #93c5fd;
+            --bg-page: #0a0e17;
+            --bg-card: rgba(255, 255, 255, 0.05);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-page); color: var(--text-main); min-height: 100vh; padding-top: 100px; padding-bottom: 50px; }
+
+        nav {
+            background-color: rgba(10, 14, 23, 0.85); backdrop-filter: blur(12px);
+            padding: 18px 8%; display: flex; justify-content: space-between; align-items: center;
+            position: fixed; top: 0; width: 100%; z-index: 1000; border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        nav h2 a { color: white; text-decoration: none; font-family: 'Poppins'; }
+        nav h2 span { color: var(--accent); }
+        .nav-links { display: flex; align-items: center; gap: 18px; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; font-weight: 500; }
+        .nav-links a:hover { color: var(--accent-light); }
+
+        .container { max-width: 720px; margin: 0 auto; padding: 20px; }
+
+        .card {
+            background: var(--bg-card); border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px; padding: 35px; box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        .form-group { margin-bottom: 22px; }
+        label { display: block; font-size: 14px; color: var(--accent-light); margin-bottom: 8px; font-weight: 600; }
+        input[type="text"], select, textarea {
+            width: 100%; padding: 12px; background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #fff; outline: none; font-size: 14px;
+        }
+        input[type="text"]:focus, select:focus, textarea:focus {
+            border-color: var(--accent);
+        }
+
+        /* File Upload Styling */
+        .file-upload-box {
+            border: 2px dashed rgba(59, 130, 246, 0.4);
+            background: rgba(59, 130, 246, 0.05);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .file-upload-box:hover {
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.1);
+        }
+        .file-upload-box input[type="file"] {
+            display: none;
+        }
+
+        .btn-submit {
+            width: 100%; padding: 14px; background: var(--accent); color: white;
+            border: none; border-radius: 8px; font-weight: 600; font-size: 16px; cursor: pointer; transition: 0.3s;
+        }
+        .btn-submit:hover { background: #2563eb; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <h2><a href="{% url 'home' %}">Interview<span>IQ</span></a></h2>
+        <div class="nav-links">
+            <a href="{% url 'home' %}">Home</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}"><i class="fas fa-columns"></i> Dashboard</a>
+            {% endif %}
+            <a href="{% url 'resume_analyzer' %}"><i class="fas fa-file-pdf"></i> AI Resume Analyzer</a>
+            <a href="{% url 'companies' %}">Companies</a>
+            <a href="{% url 'experiences' %}">Explore Experiences</a>
+            <a href="{% url 'share_experience' %}">Share Experience</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'logout' %}" style="color: #ef4444;">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="card">
+            <h1 style="font-family:'Poppins'; font-size: 26px; margin-bottom: 8px;"><i class="fas fa-pen-nib" style="color:var(--accent);"></i> Share Your Interview Experience</h1>
+            <p style="color: var(--text-muted); margin-bottom: 25px; font-size: 14px;">Help future candidates prepare better by sharing real questions, rounds, and your resume.</p>
+
+            <!-- MUST HAVE enctype="multipart/form-data" FOR FILE UPLOADS -->
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label><i class="fas fa-building"></i> Company Name</label>
+                    <input type="text" name="company_name" placeholder="e.g. Google, TCS, Amazon" required>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-user-tag"></i> Target Role</label>
+                    <input type="text" name="role" placeholder="e.g. Software Engineer, Data Analyst" required>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label><i class="fas fa-tachometer-alt"></i> Difficulty Level</label>
+                        <select name="difficulty">
+                            <option value="Easy">Easy</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="Hard">Hard</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-award"></i> Outcome</label>
+                        <select name="outcome">
+                            <option value="Cleared">Cleared / Offer</option>
+                            <option value="Not Cleared">Didn't Clear</option>
+                            <option value="Pending">Awaiting Results</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-filter"></i> Rejection Round (If applicable)</label>
+                    <select name="elimination_round">
+                        <option value="None">Cleared All Rounds / N/A</option>
+                        <option value="Online Assessment">Round 1: Online Assessment / Aptitude</option>
+                        <option value="Technical Round 1">Round 2: DSA / Coding</option>
+                        <option value="Technical Round 2">Round 3: System Design / Live Coding</option>
+                        <option value="HR / Managerial">Round 4: HR & Behavioral</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-align-left"></i> Interview Process & Workflow</label>
+                    <textarea name="experience" rows="3" placeholder="Describe the rounds you went through..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-question-circle"></i> Exact Questions Asked</label>
+                    <textarea name="questions_asked" rows="3" placeholder="List coding problems, technical theory, or HR questions..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-lightbulb"></i> Preparation Tips & Strategy Advice</label>
+                    <textarea name="tips" rows="3" placeholder="What topics should candidates study for this role?"></textarea>
+                </div>
+
+                <!-- 📄 RESUME UPLOAD SECTION -->
+                <div class="form-group">
+                    <label><i class="fas fa-file-pdf"></i> Upload Candidate Resume PDF (Optional)</label>
+                    <div class="file-upload-box" onclick="document.getElementById('resumeFileInput').click()">
+                        <i class="fas fa-cloud-upload-alt" style="font-size: 28px; color: var(--accent); margin-bottom: 8px;"></i>
+                        <p style="font-size: 14px; color: #fff;" id="fileLabel">Click to select PDF Resume</p>
+                        <p style="font-size: 12px; color: var(--text-muted);">Supports .pdf format</p>
+                        <input type="file" id="resumeFileInput" name="resume_file" accept=".pdf" onchange="updateFileName(this)">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> Publish Experience</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function updateFileName(input) {
+            if (input.files && input.files[0]) {
+                document.getElementById('fileLabel').innerText = "Selected: " + input.files[0].name;
+            }
+        }
+    </script>
+
+</body>
+</html>

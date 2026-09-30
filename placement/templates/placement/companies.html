@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Companies - InterviewIQ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        :root {
+            --accent: #3b82f6;
+            --accent-light: #93c5fd;
+            --bg-page: #0a0e17;
+            --bg-card: rgba(255, 255, 255, 0.05);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-page); color: var(--text-main); min-height: 100vh; padding-top: 100px; }
+
+        nav {
+            background-color: rgba(10, 14, 23, 0.85); backdrop-filter: blur(12px);
+            padding: 18px 8%; display: flex; justify-content: space-between; align-items: center;
+            position: fixed; top: 0; width: 100%; z-index: 1000; border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        nav h2 a { color: white; text-decoration: none; font-family: 'Poppins'; }
+        nav h2 span { color: var(--accent); }
+        .nav-links a { color: var(--text-muted); text-decoration: none; margin-left: 20px; }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+        .header-section { text-align: center; margin-bottom: 40px; }
+        .header-section h1 { font-family: 'Poppins'; font-size: 36px; color: #fff; }
+
+        .company-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+        }
+
+        .company-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            text-decoration: none;
+            color: #fff;
+            transition: 0.3s;
+        }
+
+        .company-card:hover {
+            border-color: var(--accent);
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .company-card i { font-size: 32px; color: var(--accent-light); margin-bottom: 12px; }
+        .company-card h3 { font-family: 'Poppins'; font-size: 18px; }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <h2><a href="{% url 'home' %}">Interview<span>IQ</span></a></h2>
+        <div class="nav-links">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'companies' %}">Companies</a>
+            <a href="{% url 'experiences' %}">Explore</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header-section">
+            <h1>Browse Companies</h1>
+            <p style="color: var(--text-muted);">Select a company to view specific interview experiences & success rates.</p>
+        </div>
+
+        <div class="company-grid">
+            {% for name in company_names %}
+                <a href="{% url 'company_detail' company_name=name %}" class="company-card">
+                    <i class="fas fa-building"></i>
+                    <h3>{{ name }}</h3>
+                </a>
+            {% empty %}
+                <div style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 40px;">
+                    No company experiences added yet.
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</body>
+</html>

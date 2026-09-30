@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Match Diagnostic - InterviewIQ</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root { 
+            --accent: #3b82f6; 
+            --accent-hover: #2563eb;
+            --accent-light: #93c5fd; 
+            --bg-page: #0a0e17; 
+            --bg-card: rgba(255, 255, 255, 0.05); 
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-muted: #9ca3af;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-page); color: #f3f4f6; min-height: 100vh; padding-top: 100px; padding-bottom: 50px; }
+
+        /* Navigation */
+        nav {
+            background-color: rgba(10, 14, 23, 0.95);
+            backdrop-filter: blur(12px);
+            padding: 18px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-color);
+        }
+        nav h2 a { color: white; text-decoration: none; font-family: 'Poppins', sans-serif; font-weight: 700; }
+        nav h2 span { color: var(--accent); }
+        .nav-links { display: flex; align-items: center; gap: 18px; }
+        .nav-links a { color: var(--text-muted); text-decoration: none; font-weight: 500; transition: color 0.2s ease; }
+        .nav-links a:hover { color: var(--accent-light); }
+
+        /* Layout & Container */
+        .container { max-width: 800px; margin: 0 auto; padding: 0 20px; }
+        .card { 
+            background: var(--bg-card); 
+            border: 1px solid var(--border-color); 
+            padding: 35px; 
+            border-radius: 16px; 
+            margin-bottom: 30px; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Form Controls */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .nav-links { display: none; } /* Add mobile menu behavior here if needed */
+        }
+
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 14px; color: var(--accent-light); margin-bottom: 8px; font-weight: 600; }
+        input[type="text"], textarea { 
+            width: 100%; 
+            padding: 12px 14px; 
+            background: rgba(0, 0, 0, 0.3); 
+            border: 1px solid rgba(255, 255, 255, 0.12); 
+            border-radius: 8px; 
+            color: #fff; 
+            outline: none; 
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+        input[type="text"]:focus, textarea:focus { border-color: var(--accent); }
+
+        /* Drag and Drop File Upload */
+        .file-upload-box {
+            border: 2px dashed rgba(59, 130, 246, 0.4); 
+            background: rgba(59, 130, 246, 0.05);
+            padding: 26px 20px; 
+            border-radius: 10px; 
+            text-align: center; 
+            cursor: pointer; 
+            transition: all 0.2s ease;
+        }
+        .file-upload-box:hover, .file-upload-box.dragover { 
+            border-color: var(--accent); 
+            background: rgba(59, 130, 246, 0.12); 
+        }
+        .file-upload-box input[type="file"] { display: none; }
+
+        /* Buttons */
+        .btn-submit { 
+            width: 100%; 
+            padding: 14px; 
+            background: var(--accent); 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-weight: 600; 
+            font-size: 16px; 
+            cursor: pointer; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background-color 0.2s ease;
+        }
+        .btn-submit:hover { background: var(--accent-hover); }
+        .btn-submit:disabled { background: #4b5563; cursor: not-allowed; }
+
+        /* Results & Badges */
+        .result-box { 
+            background: rgba(0, 0, 0, 0.4); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 16px; 
+            padding: 30px; 
+            margin-top: 30px; 
+        }
+        .score-badge { font-size: 38px; font-weight: 700; font-family: 'Poppins', sans-serif; }
+        
+        .tag { 
+            display: inline-block; 
+            background: rgba(59, 130, 246, 0.2); 
+            color: var(--accent-light); 
+            padding: 4px 12px; 
+            border-radius: 20px; 
+            font-size: 12px; 
+            margin: 4px 4px 4px 0; 
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+        .tag-missing { 
+            display: inline-block; 
+            background: rgba(239, 68, 68, 0.2); 
+            color: #fca5a5; 
+            padding: 4px 12px; 
+            border-radius: 20px; 
+            font-size: 12px; 
+            margin: 4px 4px 4px 0; 
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .rec-card { 
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid var(--border-color); 
+            border-radius: 12px; 
+            padding: 18px; 
+            margin-bottom: 15px; 
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav>
+        <h2><a href="{% url 'home' %}">Interview<span>IQ</span></a></h2>
+        <div class="nav-links">
+            <a href="{% url 'home' %}">Home</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}"><i class="fas fa-columns"></i> Dashboard</a>
+            {% endif %}
+            <a href="{% url 'resume_analyzer' %}"><i class="fas fa-file-pdf"></i> AI Resume Analyzer</a>
+            <a href="{% url 'companies' %}">Companies</a>
+            <a href="{% url 'experiences' %}">Explore Experiences</a>
+            <a href="{% url 'share_experience' %}">Share Experience</a>
+            {% if user.is_authenticated %}
+                <a href="{% url 'logout' %}" style="color: #ef4444;">Logout</a>
+            {% else %}
+                <a href="{% url 'login' %}">Login</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Input Form Card -->
+        <div class="card">
+            <h1 style="font-family:'Poppins', sans-serif; font-size: 26px; margin-bottom: 8px;">
+                <i class="fas fa-microchip" style="color:var(--accent);"></i> AI PDF Resume Match Diagnostic
+            </h1>
+            <p style="color: var(--text-muted); margin-bottom: 25px; font-size: 14px;">
+                Upload your resume PDF to test fit against target roles and discover alternative job options.
+            </p>
+
+            <form method="POST" enctype="multipart/form-data" id="analyzerForm">
+                {% csrf_token %}
+
+                <!-- Target Company & Role Inputs -->
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="companyInput">Target Company *</label>
+                        <input type="text" name="company_name" id="companyInput" placeholder="e.g. Amazon, TCS, Google" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="roleInput">Target Role *</label>
+                        <input type="text" name="role" id="roleInput" placeholder="e.g. Software Engineer" required>
+                    </div>
+                </div>
+
+                <!-- PDF File Upload Box with Drag & Drop -->
+                <div class="form-group">
+                    <label><i class="fas fa-file-pdf"></i> Upload Resume (PDF File)</label>
+                    <div class="file-upload-box" id="dropZone" onclick="document.getElementById('resumePdfInput').click()">
+                        <i class="fas fa-file-upload" style="font-size: 32px; color: var(--accent); margin-bottom: 10px;"></i>
+                        <p style="font-size: 14px; color: #fff; font-weight: 500;" id="pdfLabel">Click or drag & drop your PDF Resume here</p>
+                        <p style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Supports PDF up to 5MB • Auto-extracts skills & experience</p>
+                        <input type="file" id="resumePdfInput" name="resume_pdf" accept=".pdf" onchange="updatePdfLabel(this)">
+                    </div>
+                </div>
+
+                <div style="text-align: center; color: var(--text-muted); margin: 20px 0; font-size: 12px; letter-spacing: 0.5px;">
+                    — OR PROVIDE SKILLS MANUALLY BELOW —
+                </div>
+
+                <div class="form-group">
+                    <label for="skillsInput">Key Skills (Optional if PDF is uploaded)</label>
+                    <input type="text" id="skillsInput" name="skills" placeholder="e.g. Python, Django, SQL, DSA, React">
+                </div>
+
+                <div class="form-group">
+                    <label for="projectsInput">Projects & Capstone Summary (Optional if PDF is uploaded)</label>
+                    <textarea id="projectsInput" name="projects" rows="3" placeholder="Describe your major projects, architecture choices, or key features..."></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    <i class="fas fa-bolt"></i> <span>Run AI Resume Analysis</span>
+                </button>
+            </form>
+        </div>
+
+        <!-- 1. PRIMARY TARGET MATCH RESULT -->
+        {% if result %}
+            <div class="result-box">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <h2 style="font-family:'Poppins', sans-serif; font-size: 22px;">{{ result.company_name }} — {{ result.role }}</h2>
+                        <p style="color: {{ result.status_color|default:'#3b82f6' }}; font-weight: 600; margin-top: 4px;">{{ result.verdict }}</p>
+                    </div>
+                    <div class="score-badge" style="color: {{ result.status_color|default:'#3b82f6' }};">{{ result.score }}%</div>
+                </div>
+
+                <p style="color: #d1d5db; line-height: 1.6; margin-bottom: 20px;">{{ result.insight_text }}</p>
+
+                {% if result.matched_skills %}
+                    <h4 style="color: var(--accent-light); margin-bottom: 8px;">Extracted Skills Matched:</h4>
+                    <div style="margin-bottom: 15px;">
+                        {% for skill in result.matched_skills %}
+                            <span class="tag">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                {% if result.missing_recommendations %}
+                    <h4 style="color: #f59e0b; margin-bottom: 8px;">Missing Skill Recommendations:</h4>
+                    <ul style="margin-left: 20px; color: var(--text-muted); margin-bottom: 15px; line-height: 1.6;">
+                        {% for rec in result.missing_recommendations %}
+                            <li>{{ rec }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        {% endif %}
+
+        <!-- 2. ALTERNATIVE SUITABLE ROLES -->
+        {% if recommended_roles %}
+            <div class="result-box" style="border-color: rgba(59, 130, 246, 0.4); margin-top: 25px;">
+                <h3 style="font-family:'Poppins', sans-serif; color: var(--accent-light); margin-bottom: 10px;">
+                    <i class="fas fa-lightbulb"></i> Alternative Roles That Fit Your Resume
+                </h3>
+                <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px;">
+                    Based on the skills extracted from your resume, here are other active placement profiles you are eligible for:
+                </p>
+
+                {% for rec in recommended_roles %}
+                    <div class="rec-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 8px;">
+                            <h4 style="color: #fff; font-size: 16px;">
+                                {{ rec.company_name }} — <span style="color: var(--accent-light);">{{ rec.role_title }}</span>
+                            </h4>
+                            <span class="tag" style="background: rgba(16, 185, 129, 0.2); color: #34d399; font-weight: bold; border-color: rgba(16, 185, 129, 0.3);">
+                                {{ rec.match_score }}% Match
+                            </span>
+                        </div>
+                        
+                        {% if rec.matched_skills %}
+                            <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">
+                                <strong style="color: #d1d5db;">Matched Skills:</strong> 
+                                <div style="margin-top: 4px;">
+                                    {% for ms in rec.matched_skills %}
+                                        <span class="tag">{{ ms }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        {% if rec.missing_skills %}
+                            <div style="font-size: 13px; color: var(--text-muted);">
+                                <strong style="color: #f87171;">Missing Skills:</strong> 
+                                <div style="margin-top: 4px;">
+                                    {% for ms in rec.missing_skills %}
+                                        <span class="tag-missing">{{ ms }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    <script>
+        // PDF Label Update & File Size Check
+        function updatePdfLabel(input) {
+            const label = document.getElementById('pdfLabel');
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                if (file.size > 5 * 1024 * 1024) { // 5MB Limit check
+                    alert("File size exceeds 5MB. Please upload a smaller PDF.");
+                    input.value = "";
+                    label.innerText = "Click or drag & drop your PDF Resume here";
+                    return;
+                }
+                label.innerText = "Attached PDF: " + file.name;
+            }
+        }
+
+        // Drag and Drop Behavior
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('resumePdfInput');
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.add('dragover');
+            }, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropZone.classList.remove('dragover');
+            }, false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0 && files[0].type === "application/pdf") {
+                fileInput.files = files;
+                updatePdfLabel(fileInput);
+            } else if (files.length > 0) {
+                alert("Please upload a valid PDF file.");
+            }
+        });
+
+        // Form Submit State (prevents multiple posts while backend parses PDF)
+        document.getElementById('analyzerForm').addEventListener('submit', function() {
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Analyzing Resume...</span>';
+        });
+    </script>
+</body>
+</html>
